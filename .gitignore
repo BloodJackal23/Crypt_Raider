@@ -1,3 +1,15 @@
+#Custom
+GothicTemple/
+Intermediate/
+Saved/
+Collections/
+Debug/
+Logs/
+
+#Custom File Extensions
+*.log
+*.ini
+
 # Visual Studio 2015 user specific files
 .vs/
 
