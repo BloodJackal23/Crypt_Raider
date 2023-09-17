@@ -11,9 +11,12 @@ class CRYPTRAIDER_API AInteractableDoor : public AActor
 
 private:
 	UWorld* WorldPtr;
+	UPROPERTY(EditDefaultsOnly)
+	FVector DetectionOrigin;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly)
 	FVector DetectionExtents;
+
 
 public:
 	// Sets default values for this actor's properties

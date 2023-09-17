@@ -20,9 +20,11 @@ void AInteractableDoor::BeginPlay()
 void AInteractableDoor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	DrawDebugBox(WorldPtr, GetTransform().GetLocation(), DetectionExtents, FColor::Cyan, false, -1.0f, 0U, 20.0f);
+	FVector originLoc = GetTransform().GetLocation() + DetectionOrigin;
+	DrawDebugBox(WorldPtr, originLoc, DetectionExtents, FColor::Cyan, false, -1.0f, 0U, 20.0f);
+	DrawDebugBox(WorldPtr, originLoc, FVector(10, 10, 10), FColor::Magenta, false, -1.0f, 0U, 20.0f);
 	TArray<FOverlapResult> hits;
-	if (WorldPtr->OverlapAnyTestByObjectType(GetTransform().GetLocation(), FQuat::Identity, ECC_Pawn, FCollisionShape::MakeBox(DetectionExtents * 0.5f))) 
+	if (WorldPtr->OverlapAnyTestByObjectType(originLoc, FQuat::Identity, ECC_Pawn, FCollisionShape::MakeBox(DetectionExtents * 0.5f)))
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Green, TEXT("Camera next to door!"));
 	}
