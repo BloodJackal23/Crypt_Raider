@@ -1,6 +1,7 @@
 #include "Interactables/InteractableDoor.h"
 #include "DrawDebugHelpers.h"
 #include "GameFramework/Character.h"
+#include "Components/InstancedStaticMeshComponent.h"
 
 // Sets default values
 AInteractableDoor::AInteractableDoor()
@@ -14,6 +15,38 @@ void AInteractableDoor::BeginPlay()
 {
 	Super::BeginPlay();
 	WorldPtr = GetWorld();
+	DoorInstancedMesh = FindComponentByClass<UInstancedStaticMeshComponent>();
+	TransitionDistance = FVector::Distance(ClosedStateLocation, OpenedStateLocation);
+	if (DoorInstancedMesh == nullptr) 
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, TEXT("ERROR: Door instance mesh not found!"));
+	}
+}
+
+void AInteractableDoor::OpenDoor(float deltaTime)
+{
+	FVector curLoc = DoorInstancedMesh->GetRelativeLocation();
+	FVector transitionDir = (OpenedStateLocation - ClosedStateLocation).GetSafeNormal();
+	if (FVector::PointsAreNear(curLoc, OpenedStateLocation, 5.0f)) 
+	{
+		DoorInstancedMesh->SetRelativeLocation(OpenedStateLocation);
+		bIsOpened = true;
+		return;
+	}
+	DoorInstancedMesh->SetRelativeLocation(curLoc + transitionDir * TransitionSpeed * deltaTime);
+}
+
+void AInteractableDoor::CloseDoor(float deltaTime)
+{
+	FVector curLoc = DoorInstancedMesh->GetRelativeLocation();
+	FVector transitionDir = (ClosedStateLocation - OpenedStateLocation).GetSafeNormal();
+	if (FVector::PointsAreNear(curLoc, ClosedStateLocation, 5.0f))
+	{
+		DoorInstancedMesh->SetRelativeLocation(ClosedStateLocation);
+		bIsOpened = false;
+		return;
+	}
+	DoorInstancedMesh->SetRelativeLocation(curLoc + transitionDir * TransitionSpeed * deltaTime);
 }
 
 // Called every frame
@@ -26,7 +59,26 @@ void AInteractableDoor::Tick(float DeltaTime)
 	TArray<FOverlapResult> hits;
 	if (WorldPtr->OverlapAnyTestByObjectType(originLoc, FQuat::Identity, ECC_Pawn, FCollisionShape::MakeBox(DetectionExtents * 0.5f)))
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Green, TEXT("Camera next to door!"));
+		if (!bIsTriggered)
+		{
+			bIsTriggered = true;
+		}
+		//GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Green, TEXT("Camera next to door!"));
+	}
+	else 
+	{
+		if (bIsTriggered)
+		{
+			bIsTriggered = false;
+		}
 	}
 	
+	if (bIsTriggered) 
+	{
+		OpenDoor(DeltaTime);
+	}
+	else 
+	{
+		CloseDoor(DeltaTime);
+	}
 }
