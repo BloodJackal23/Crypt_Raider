@@ -1,4 +1,4 @@
-#include "InteractableDoor.h"
+#include "Interactables/InteractableDoor.h"
 #include "DrawDebugHelpers.h"
 #include "GameFramework/Character.h"
 
